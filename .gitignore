@@ -1,0 +1,5 @@
+node_modules
+*.pub
+keystore/contractsconfig.json
+.vscode/launch.json
+.node-xmlhttprequest-sync*

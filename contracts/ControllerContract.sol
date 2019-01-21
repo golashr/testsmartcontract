@@ -5,17 +5,10 @@ contract ControllerContract {
 
     address private owner;
 
-    event UniversityAddress(address univ);
-    event InstituteAddress(address institute);
-    event CourseAddress(address course);
-    event BatchAddress(string message, address batch);
-    event StudentAddress(string _id,address student);
-    //event CertificateAddress(address certificate, address batchAddr,string[2] _id);
-
-    event StudentAdded(bool flag);
-    event UniversityAdded(bool flag);
-    event CertificateAdded(bool flag);
-    event CertificateGranted(address batchAddress, address stuAddress, address certAddress, bool flag);
+    event ControllerStudentAdded(bool flag);
+    event ControllerUniversityAdded(bool flag);
+    event ControllerCertificateAdded(bool flag);
+    event ControllerCertificateGranted(address batchAddress, address stuAddress, address certAddress, bool flag);
 
     struct CertificateStruct {
         address certificateAddress;
@@ -67,7 +60,7 @@ contract ControllerContract {
         univStructs[univAddress].univAddress = univAddress;
         univStructs[univAddress].isUniversity = true;
         univStructs[univAddress].index = univIndex.push(univAddress)-1;
-        emit UniversityAdded(true);
+        emit ControllerUniversityAdded(true);
         return univIndex.length-1;
     }
     
@@ -93,7 +86,7 @@ contract ControllerContract {
         studentStructs[studentAddress].studentAddress = studentAddress;
         studentStructs[studentAddress].isStudent = true;
         studentStructs[studentAddress].index = studentIndex.push(studentAddress)-1;
-        emit StudentAdded(true);
+        emit ControllerStudentAdded(true);
         return studentIndex.length-1;
     }
     
@@ -119,7 +112,7 @@ contract ControllerContract {
         certificateStructs[certificateAddress].certificateAddress = certificateAddress;
         certificateStructs[certificateAddress].isCertificate = true;
         certificateStructs[certificateAddress].index = certificateIndex.push(certificateAddress)-1;
-        emit CertificateAdded(true);
+        emit ControllerCertificateAdded(true);
         return certificateIndex.length-1;
     }
 
@@ -149,7 +142,7 @@ contract ControllerContract {
 
         //Actually granting the certificate
         bool flag = student.grantCertificate(batchAddress, certAddress, timestamp);
-        emit CertificateGranted(batchAddress,studAddress,certAddress,flag);
+        emit ControllerCertificateGranted(batchAddress,studAddress,certAddress,flag);
         return flag;
     }
 

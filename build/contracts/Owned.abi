@@ -1,1 +1,1 @@
-[{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]
+[{"constant":true,"inputs":[],"name":"getOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]

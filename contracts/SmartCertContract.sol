@@ -9,6 +9,10 @@ contract Owned {
      owner = msg.sender; // just set the ControllerContract
   }
 
+  function getOwner() public view returns (address) {
+      return owner;
+  }
+
   modifier onlyOwner{
     require(msg.sender == owner);
     _;
@@ -48,12 +52,12 @@ contract Certificate is Owned{
       return isRevokedFlag;
   }
 
-  function revokeCert() onlyOwner public returns(bool) {
+  function revokeCert() public returns(bool) {
       isRevokedFlag = true;
       return true;
   }
 
-  function suspendRevocation() onlyOwner public returns(bool) {
+  function suspendRevocation() public returns(bool) {
       isRevokedFlag = false;
       return true;
   }
@@ -63,12 +67,12 @@ contract Certificate is Owned{
       return isExpiredFlag;
   }
 
-  function expireCert() onlyOwner public returns(bool) {
+  function expireCert() public returns(bool) {
       isExpiredFlag = true;
       return true;
   }
 
-  function grantCertificate(address studentAddress, string memory timestamp) onlyOwner public returns(bool) {
+  function grantCertificate(address studentAddress, string memory timestamp) public returns(bool) {
       addressStudent = studentAddress;
       issuedOn = timestamp;
       emit CertGrantedCert(true);
@@ -100,7 +104,7 @@ contract Student is Owned{
   address private batchAddress;       //Address of Batch
   string private studentIdentifier;
 
-  event CertGranted(bool flag);
+  event StudentCertGranted(bool flag);
 
   struct CertStruct {
       address certificateAddress;
@@ -120,7 +124,7 @@ contract Student is Owned{
     return ((certIndex[certStructs[certAddress].index] == certAddress) && (certStructs[certAddress].isCertificateGranted));
   }
 
-  function grantCertificate(address _batchAddress, address certAddress, string memory timestamp) onlyOwner public returns(bool) {
+  function grantCertificate(address _batchAddress, address certAddress, string memory timestamp) public returns(bool) {
     if(isCertGranted(certAddress)) return true;
     certStructs[certAddress].certificateAddress = certAddress;
     certStructs[certAddress].isCertificateGranted = true;
@@ -129,9 +133,9 @@ contract Student is Owned{
     batchAddress = _batchAddress;
 
     //add Student address to Certiifcate as well!
-    //Certificate cert = Certificate(certAddress);
-    //cert.grantCertificate(this, timestamp);
-    //CertGranted(true);
+    Certificate cert = Certificate(certAddress);
+    cert.grantCertificate(address(this), timestamp);
+    emit StudentCertGranted(true);
     return true;
   }
 
@@ -166,7 +170,7 @@ contract Batch is Owned{
   string private batchIdentifier;  //Unique indetifier, to be given by DApp
   string private merkelRootHash;   //This is merkel root of all the certs issued, by SHA256notaryHash
 
-  event StudentAdded(bool flag);
+  event BatchStudentAdded(bool flag);
 
   struct StudentStruct {
     address studentData;
@@ -198,12 +202,12 @@ contract Batch is Owned{
       return ((studentIndex[studentStructs[studAddress].index] == studAddress) && (studentStructs[studAddress].isStudent));
   }
 
-  function addStudent(address studAddress) onlyOwner public returns(uint) {
+  function addStudent(address studAddress) public returns(uint) {
     if(isStudentExist(studAddress)) return uint(9999);
     studentStructs[studAddress].studentData = studAddress;
     studentStructs[studAddress].isStudent = true;
     studentStructs[studAddress].index = studentIndex.push(studAddress)-1;
-    emit StudentAdded(true);
+    emit BatchStudentAdded(true);
     return studentIndex.length-1;
   }
 
@@ -242,7 +246,7 @@ contract Course is Owned{
   address private addressInstitute;   //Address of Institute
   string private courseIdentifier;   //Unique indetifier, to be given by DApp
 
-  event BatchAdded(bool flag);
+  event CourseBatchAdded(bool flag);
 
   struct BatchStruct {
     address batchData;
@@ -273,12 +277,12 @@ contract Course is Owned{
       return ((batchIndex[batchStructs[batchAddress].index] == batchAddress) && (batchStructs[batchAddress].isBatch));
   }
 
-  function addBatch(address batchAddress) onlyOwner public returns(uint) {
+  function addBatch(address batchAddress) public returns(uint) {
     if(isBatchExist(batchAddress)) return uint(9999);
     batchStructs[batchAddress].batchData = batchAddress;
     batchStructs[batchAddress].isBatch = true;
     batchStructs[batchAddress].index = batchIndex.push(batchAddress)-1;
-    emit BatchAdded(true);
+    emit CourseBatchAdded(true);
     return batchIndex.length-1;
   }
 
@@ -309,7 +313,7 @@ contract Institute is Owned{
   address private addressUniversity;    //Address of University
   string private instituteIdentifier;  //Address of Course
 
-  event CourseAdded(bool flag);
+  event InstituteCourseAdded(bool flag);
 
   struct courseStruct {
       address courseAddress;
@@ -341,12 +345,12 @@ contract Institute is Owned{
      return ((courseIndex[courseStructs[courseAddress].index] == courseAddress) && (courseStructs[courseAddress].isCourse));
   }
 
-  function addCourse(address courseAddress) onlyOwner public returns(uint) {
+  function addCourse(address courseAddress) public returns(uint) {
       if(isCourseExist(courseAddress)) return uint(9999);
       courseStructs[courseAddress].courseAddress = courseAddress;
       courseStructs[courseAddress].isCourse = true;
       courseStructs[courseAddress].index = courseIndex.push(courseAddress)-1;
-      emit CourseAdded(true);
+      emit InstituteCourseAdded(true);
       return courseIndex.length-1;
   }
 
@@ -375,7 +379,7 @@ contract University is Owned{
   address private owner;                 //Address of ControllerContract
   string private universityIdentifier;  ///universityIdentifier
 
-  event InstituteAdded(bool flag);
+  event UniversityInstituteAdded(bool flag);
 
   struct InstituteStruct {
     address instituteData;
@@ -407,181 +411,14 @@ contract University is Owned{
       return address(0x00);
   }
 
-  function addInstitute(address instituteAddress) onlyOwner public returns(uint) {
+  function addInstitute(address instituteAddress) public returns(uint) {
     if(isInstituteExist(instituteAddress)) return uint(9999);
     instituteStructs[instituteAddress].instituteData = instituteAddress;
     instituteStructs[instituteAddress].isInstitute = true;
     instituteStructs[instituteAddress].index = instituteIndex.push(instituteAddress)-1;
-    emit InstituteAdded(true);
+    emit UniversityInstituteAdded(true);
     return instituteIndex.length-1;
   }
-}
-//--------------------------------------------------------
-
-contract ControllerContract {
-
-    address private owner;
-
-    event UniversityAddress(address univ);
-    event InstituteAddress(address institute);
-    event CourseAddress(address course);
-    event BatchAddress(string message, address batch);
-    event StudentAddress(string _id,address student);
-    //event CertificateAddress(address certificate, address batchAddr,string[2] _id);
-
-    event StudentAdded(bool flag);
-    event UniversityAdded(bool flag);
-    event CertificateAdded(bool flag);
-    event CertificateGranted(address batchAddress, address stuAddress, address certAddress, bool flag);
-
-    struct CertificateStruct {
-        address certificateAddress;
-        bool isCertificate;
-        uint index;
-    }
-    mapping (address => CertificateStruct) private certificateStructs;
-    address[] private certificateIndex;
-
-    struct StudentStruct {
-        address studentAddress;
-        bool isStudent;
-        uint index;
-    }
-    mapping (address => StudentStruct) private studentStructs;
-    address[] private studentIndex;
-
-    struct UniversityStruct {
-        address univAddress;
-        bool isUniversity;
-        uint index;
-    }
-    mapping (address => UniversityStruct) private univStructs;
-    address[] private univIndex;
-
-    constructor() public{
-        owner = msg.sender;  // just set the self
-    }
-
-    function isUniExist(address uniAddress) public view returns(bool) {
-        if(univIndex.length == 0) return false;
-	        return ((univIndex[univStructs[uniAddress].index] == uniAddress) && (univStructs[uniAddress].isUniversity));
-    }
-    
-    function getNoOfUniversity() public view returns (uint) {
-        return univIndex.length;
-    }
-
-    function getUniversityAt(uint index) public view returns (address) {
-        if(index <= univIndex.length)
-            return univIndex[index];
-        else
-            return address(0x00);
-    }
-
-    function addUniversity(address univAddress) public returns(uint) {
-        if(isUniExist(univAddress)) 
-            return uint(9999);
-        univStructs[univAddress].univAddress = univAddress;
-        univStructs[univAddress].isUniversity = true;
-        univStructs[univAddress].index = univIndex.push(univAddress)-1;
-        emit UniversityAdded(true);
-        return univIndex.length-1;
-    }
-    
-    function isStudentExist(address studAddress) public view returns(bool) {
-        if(studentIndex.length == 0) return false;
-        return ((studentIndex[studentStructs[studAddress].index] == studAddress) && (studentStructs[studAddress].isStudent));
-    }
-    
-    function getNoOfStudents() public view returns (uint) {
-        return studentIndex.length;
-    }
-
-    function getStudentAt(uint index) public view returns (address) {
-        if(index < studentIndex.length)
-            return studentIndex[index];
-        else
-            return address(0x00);
-    }
-  
-    function addStudent(address studentAddress) public returns (uint) {
-        if(isStudentExist(studentAddress)) 
-            return uint(9999);
-        studentStructs[studentAddress].studentAddress = studentAddress;
-        studentStructs[studentAddress].isStudent = true;
-        studentStructs[studentAddress].index = studentIndex.push(studentAddress)-1;
-        emit StudentAdded(true);
-        return studentIndex.length-1;
-    }
-    
-    function isCertificateExist(address certAddress) public view returns(bool) {
-        if(certificateIndex.length == 0) return false;
-            return ((certificateIndex[certificateStructs[certAddress].index] == certAddress) && (certificateStructs[certAddress].isCertificate));
-    }
-
-    function getNoOfCertificates() public view returns (uint) {
-        return certificateIndex.length;
-    }
-
-    function getCertificateAt(uint index) public view returns (address) {
-        if(index <= certificateIndex.length)
-            return certificateIndex[index];
-        else
-            return address(0x00);
-    }
-
-    function addCertificate(address certificateAddress) public returns(uint) {
-        if(isCertificateExist(certificateAddress)) 
-            return uint(9999);
-        certificateStructs[certificateAddress].certificateAddress = certificateAddress;
-        certificateStructs[certificateAddress].isCertificate = true;
-        certificateStructs[certificateAddress].index = certificateIndex.push(certificateAddress)-1;
-        emit CertificateAdded(true);
-        return certificateIndex.length-1;
-    }
-
-    function checkHierarchy(address univAddress,address instAddress,address courseAddress,address batchAddress) public view returns (bool) {
-        if(!isUniExist(univAddress)) return false;
-
-        University univ = University(univAddress);
-        if(!univ.isInstituteExist(instAddress)) return false;
-
-        Institute inst = Institute(instAddress);
-        if(!inst.isCourseExist(courseAddress)) return false;
-
-        Course course = Course(courseAddress);
-        if(!course.isBatchExist(batchAddress)) return false;
-
-        return true;
-    }
-
-    function issueCertificate(address batchAddress, address studAddress, address certAddress, string memory timestamp) public returns(bool) {
-        Batch batch = Batch(batchAddress);
-        if(!batch.isStudentExist(studAddress)) 
-            return false;
-
-        Student student = Student(studAddress);
-        if(student.isCertGranted(certAddress)) 
-            return true;
-
-        //Actually granting the certificate
-        bool flag = student.grantCertificate(batchAddress, certAddress, timestamp);
-        emit CertificateGranted(batchAddress,studAddress,certAddress,flag);
-        return flag;
-    }
-
-    function verifyCertificate(address studAddress, address certAddress) public view returns(bool) {
-        Certificate cert = Certificate(certAddress);
-        address batchAddress = cert.getBatchAddress();
-        //emit BatchAddress("Certificate is associated with Batch :", batchAddress);
-        Batch batch = Batch(batchAddress);
-        if(!batch.isStudentExist(studAddress)) return false;
-
-        Student student = Student(studAddress);
-        if(!student.isCertGranted(certAddress)) 
-            return false;
-        return true;
-    }
 }
 
 
