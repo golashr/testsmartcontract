@@ -3,10 +3,10 @@ pragma experimental ABIEncoderV2;
 
 //-------------------------------------------------------------------------
 contract Owned {
-  address private owner;     //Address of ControllerContract
+  address private owner;     
 
   constructor() public {
-     owner = msg.sender; // just set the ControllerContract
+     owner = msg.sender;
   }
 
   function getOwner() public view returns (address) {
@@ -25,7 +25,7 @@ contract Certificate is Owned{
   string private certIdentifier; //Unique indetifier, to be given by DApp
   bool private isRevokedFlag;     //whether certificate is revoked by uni due to any reason
   bool private isExpiredFlag;     //whether certificate is expired or still active
-  address private owner;          //Address of ControllerContract
+  address private owner;          
   address private addressStudent; //Address of Student
   address private addressBatch;   //Address of Batch
   string private certHash;       //Hash of the certificate saved with DApp by SHA256notaryHash
@@ -100,7 +100,7 @@ contract Certificate is Owned{
 }
 //----------------------------------------------------------
 contract Student is Owned{
-  address private owner;              //Address of ControllerContract
+  address private owner;              
   address private batchAddress;       //Address of Batch
   string private studentIdentifier;
 
@@ -165,7 +165,7 @@ contract Student is Owned{
 }
 //------------------------------------------------------
 contract Batch is Owned{
-  address private owner;            //Address of ControllerContract
+  address private owner;            
   address private addressCourse;    //Address of Course
   string private batchIdentifier;  //Unique indetifier, to be given by DApp
   string private merkelRootHash;   //This is merkel root of all the certs issued, by SHA256notaryHash
@@ -242,7 +242,7 @@ contract Batch is Owned{
 }
 //----------------------------------------------------------------
 contract Course is Owned{
-  address private owner;              //Address of ControllerContract
+  address private owner;              
   address private addressInstitute;   //Address of Institute
   string private courseIdentifier;   //Unique indetifier, to be given by DApp
 
@@ -309,7 +309,7 @@ contract Course is Owned{
 //---------------------------------------------------------------------------
 contract Institute is Owned{
 
-  address private owner;                //Address of ControllerContract
+  address private owner;                
   address private addressUniversity;    //Address of University
   string private instituteIdentifier;  //Address of Course
 
@@ -376,7 +376,7 @@ contract Institute is Owned{
 }
 //--------------------------------------------------------
 contract University is Owned{
-  address private owner;                 //Address of ControllerContract
+  address private owner;                
   string private universityIdentifier;  ///universityIdentifier
 
   event UniversityInstituteAdded(bool flag);
@@ -421,6 +421,164 @@ contract University is Owned{
   }
 }
 
+//--------------------------------------------------------
+contract ControllerContract {
 
+    address private owner;
+
+    event ControllerStudentAdded(bool flag);
+    event ControllerUniversityAdded(bool flag);
+    event ControllerCertificateAdded(bool flag);
+    event ControllerCertificateGranted(address batchAddress, address stuAddress, address certAddress, bool flag);
+
+    struct CertificateStruct {
+        address certificateAddress;
+        bool isCertificate;
+        uint index;
+    }
+    mapping (address => CertificateStruct) private certificateStructs;
+    address[] private certificateIndex;
+
+    struct StudentStruct {
+        address studentAddress;
+        bool isStudent;
+        uint index;
+    }
+    mapping (address => StudentStruct) private studentStructs;
+    address[] private studentIndex;
+
+    struct UniversityStruct {
+        address univAddress;
+        bool isUniversity;
+        uint index;
+    }
+    mapping (address => UniversityStruct) private univStructs;
+    address[] private univIndex;
+
+    constructor() public{
+        owner = msg.sender;  // just set the self
+    }
+
+    function isUniExist(address uniAddress) public view returns(bool) {
+        if(univIndex.length == 0) return false;
+	        return ((univIndex[univStructs[uniAddress].index] == uniAddress) && (univStructs[uniAddress].isUniversity));
+    }
+    
+    function getNoOfUniversity() public view returns (uint) {
+        return univIndex.length;
+    }
+
+    function getUniversityAt(uint index) public view returns (address) {
+        if(index <= univIndex.length)
+            return univIndex[index];
+        else
+            return address(0x00);
+    }
+
+    function addUniversity(address univAddress) public returns(uint) {
+        if(isUniExist(univAddress)) 
+            return uint(9999);
+        univStructs[univAddress].univAddress = univAddress;
+        univStructs[univAddress].isUniversity = true;
+        univStructs[univAddress].index = univIndex.push(univAddress)-1;
+        emit ControllerUniversityAdded(true);
+        return univIndex.length-1;
+    }
+    
+    function isStudentExist(address studAddress) public view returns(bool) {
+        if(studentIndex.length == 0) return false;
+        return ((studentIndex[studentStructs[studAddress].index] == studAddress) && (studentStructs[studAddress].isStudent));
+    }
+    
+    function getNoOfStudents() public view returns (uint) {
+        return studentIndex.length;
+    }
+
+    function getStudentAt(uint index) public view returns (address) {
+        if(index < studentIndex.length)
+            return studentIndex[index];
+        else
+            return address(0x00);
+    }
+  
+    function addStudent(address studentAddress) public returns (uint) {
+        if(isStudentExist(studentAddress)) 
+            return uint(9999);
+        studentStructs[studentAddress].studentAddress = studentAddress;
+        studentStructs[studentAddress].isStudent = true;
+        studentStructs[studentAddress].index = studentIndex.push(studentAddress)-1;
+        emit ControllerStudentAdded(true);
+        return studentIndex.length-1;
+    }
+    
+    function isCertificateExist(address certAddress) public view returns(bool) {
+        if(certificateIndex.length == 0) return false;
+            return ((certificateIndex[certificateStructs[certAddress].index] == certAddress) && (certificateStructs[certAddress].isCertificate));
+    }
+
+    function getNoOfCertificates() public view returns (uint) {
+        return certificateIndex.length;
+    }
+
+    function getCertificateAt(uint index) public view returns (address) {
+        if(index <= certificateIndex.length)
+            return certificateIndex[index];
+        else
+            return address(0x00);
+    }
+
+    function addCertificate(address certificateAddress) public returns(uint) {
+        if(isCertificateExist(certificateAddress)) 
+            return uint(9999);
+        certificateStructs[certificateAddress].certificateAddress = certificateAddress;
+        certificateStructs[certificateAddress].isCertificate = true;
+        certificateStructs[certificateAddress].index = certificateIndex.push(certificateAddress)-1;
+        emit ControllerCertificateAdded(true);
+        return certificateIndex.length-1;
+    }
+
+    function checkHierarchy(address univAddress,address instAddress,address courseAddress,address batchAddress) public view returns (bool) {
+        if(!isUniExist(univAddress)) return false;
+
+        University univ = University(univAddress);
+        if(!univ.isInstituteExist(instAddress)) return false;
+
+        Institute inst = Institute(instAddress);
+        if(!inst.isCourseExist(courseAddress)) return false;
+
+        Course course = Course(courseAddress);
+        if(!course.isBatchExist(batchAddress)) return false;
+
+        return true;
+    }
+
+    function issueCertificate(address batchAddress, address studAddress, address certAddress, string memory timestamp) public returns(bool) {
+        Batch batch = Batch(batchAddress);
+        if(!batch.isStudentExist(studAddress)) 
+            return false;
+
+        Student student = Student(studAddress);
+        if(student.isCertGranted(certAddress)) 
+            return true;
+
+        //Actually granting the certificate
+        bool flag = student.grantCertificate(batchAddress, certAddress, timestamp);
+        emit ControllerCertificateGranted(batchAddress,studAddress,certAddress,flag);
+        return flag;
+    }
+
+    function verifyCertificate(address studAddress, address certAddress) public view returns(bool) {
+        Certificate cert = Certificate(certAddress);
+        address batchAddress = cert.getBatchAddress();
+        //emit BatchAddress("Certificate is associated with Batch :", batchAddress);
+        Batch batch = Batch(batchAddress);
+        if(!batch.isStudentExist(studAddress)) return false;
+
+        Student student = Student(studAddress);
+        if(!student.isCertGranted(certAddress)) 
+            return false;
+        return true;
+    }
+}
  
 

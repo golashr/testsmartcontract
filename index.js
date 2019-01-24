@@ -472,9 +472,9 @@ async function testSmartUniversityContract() {
         }
         constructorParameters.push("RMIT");
         let encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        let transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressUniversity = transactionHash.contractAddress;
-        console.log("University deployedAddress ", deployedAddressUniversity);
+        let transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressUniversity = transactionObject.contractAddress;
+        console.log("University deployedAddress", deployedAddressUniversity, "with transaction hash", transactionObject.transactionHash);
         utils.writeContractsINConfig("University",deployedAddressUniversity);
 
         
@@ -487,9 +487,9 @@ async function testSmartUniversityContract() {
         constructorParameters.push(deployedAddressUniversity);
         constructorParameters.push("Inst1");
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressInst = transactionHash.contractAddress;
-        console.log("Institute deployedAddress ", deployedAddressInst);
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressInst = transactionObject.contractAddress;
+        console.log("Institute deployedAddress", deployedAddressInst, "with transaction hash", transactionObject.transactionHash);
 
         
         //Course Deployment
@@ -501,9 +501,9 @@ async function testSmartUniversityContract() {
         constructorParameters.push(deployedAddressInst);
         constructorParameters.push("Course1");
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressCourse = transactionHash.contractAddress;
-        console.log("Course deployedAddress ", deployedAddressCourse);
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressCourse = transactionObject.contractAddress;
+        console.log("Course deployedAddress", deployedAddressCourse, "with transaction hash", transactionObject.transactionHash);
 
 
         //Batch Deployment
@@ -515,9 +515,9 @@ async function testSmartUniversityContract() {
         constructorParameters.push(deployedAddressCourse);
         constructorParameters.push("Batch1");
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressBatch = transactionHash.contractAddress;
-        console.log("Batch deployedAddress ", deployedAddressBatch);
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressBatch = transactionObject.contractAddress;
+        console.log("Batch deployedAddress", deployedAddressBatch, "with transaction hash", transactionObject.transactionHash);
 
 
         //Certificate Deployment
@@ -529,9 +529,9 @@ async function testSmartUniversityContract() {
         constructorParameters.push(deployedAddressBatch);
         constructorParameters.push("BTech");
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressCert = transactionHash.contractAddress;
-        console.log("Certificate deployedAddress ", deployedAddressCert);
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressCert = transactionObject.contractAddress;
+        console.log("Certificate deployedAddress", deployedAddressCert, "with transaction hash", transactionObject.transactionHash);
 
         
         //Student Deployment
@@ -542,10 +542,9 @@ async function testSmartUniversityContract() {
         constructorParameters = [];
         constructorParameters.push("Vitalin Butarik");
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressStudent = transactionHash.contractAddress;
-        console.log("Student deployedAddress ", deployedAddressStudent);
-
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressStudent = transactionObject.contractAddress;
+        console.log("Student deployedAddress", deployedAddressStudent, "with transaction hash", transactionObject.transactionHash);
 
         //ControllerContract Deployment
         value = utils.readSolidityContractJSON("./build/contracts/ControllerContract");
@@ -554,9 +553,9 @@ async function testSmartUniversityContract() {
         }
         constructorParameters = [];
         encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedAddressController = transactionHash.contractAddress;
-        console.log("ControllerContract deployedAddress ", deployedAddressController);
+        transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedAddressController = transactionObject.contractAddress;
+        console.log("ControllerContract deployedAddress", deployedAddressController, "with transaction hash", transactionObject.transactionHash);
 
         utils.writeContractsINConfig("University",deployedAddressUniversity);
         utils.writeContractsINConfig("Institute",deployedAddressInst);
@@ -615,8 +614,8 @@ async function deployERC20Contract(){
         //value[0] = Contract ABI and value[1] =  Contract Bytecode
         //var deployedERC20Address = "0x0000000000000000000000000000000000002020";
         let encodedABI = await utils.getContractEncodeABI(value[0], value[1],web3,constructorParameters);
-        let transactionHash = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
-        deployedERC20Address = transactionHash.contractAddress;
+        let transactionObject = await utils.sendMethodTransaction(ethAccountToUse,undefined,encodedABI,privateKey[ethAccountToUse],web3,0);
+        deployedERC20Address = transactionObject.contractAddress;
         console.log("ERC20 deployedAddress ", deployedERC20Address);
 
         utils.writeContractsINConfig("ERC20",deployedERC20Address);
